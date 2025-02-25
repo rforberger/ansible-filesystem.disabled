@@ -1,0 +1,42 @@
+---
+
+- name: Install parted
+  ansible.builtin.apt:
+    name: "{{ item }}"
+  loop:
+    - parted
+
+- name: Partition
+  community.general.parted:
+        device: "{{ item.dev }}"
+        fs_type: ext4
+        number: "{{ item.number }}"
+        label: msdos
+        name: "{{ item.name }}"
+        state: "{{ state }}"
+  loop: "{{ filesystems }}"
+
+- name: Create an ext4 filesystem
+  community.general.filesystem:
+    dev: "{{ item.dev }}{{ item.number }}"
+    fstype: ext4
+    state: "{{ state }}"
+  loop: "{{ filesystems }}"
+
+- name: Create mount directories
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+  loop: "{{ filesystems }}"
+
+- name: Mount filesystems
+  ansible.posix.mount:
+    backup: yes
+    fstype: ext4
+    path: "{{ item.path }}"
+    src: "{{ item.dev }}{{ item.number }}"
+    state: mounted
+  loop: "{{ filesystems }}"
+
+
+

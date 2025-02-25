@@ -1,0 +1,5 @@
+---
+
+#uservar.state: info
+filesystems:
+  - { dev: "/dev/vda", name: "users", number: 4, path: "/users" }
